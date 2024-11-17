@@ -22,6 +22,7 @@ sealed class ResolvedTarget(val urlPath: String) {
                 "path" to urlPath,
                 "parameters" to call.parameters.toMap(),
                 "httpMethod" to call.request.httpMethod.value,
+                "httpHeaders" to call.request.headers.toMap(),
             )
 
             call.respond(
