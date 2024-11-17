@@ -9,6 +9,7 @@ ktor-server-status-pages = { module = "io.ktor:ktor-server-status-pages", versio
 
 ktor-server-velocity = { module = "io.ktor:ktor-server-velocity", version.ref = "ktor" }
 ktor-server-freemarker = { module = "io.ktor:ktor-server-freemarker", version.ref = "ktor" }
+ktor-server-thymeleaf = { module = "io.ktor:ktor-server-thymeleaf", version.ref = "ktor" }
 
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref="ktor" }
 
@@ -18,7 +19,7 @@ ktor-serialization-jackson = { module = "io.ktor:ktor-serialization-jackson", ve
 ktor-server = [
     "ktor-server-core", "ktor-server-netty", "ktor-server-status-pages",
     "ktor-server-content-negotiation",
-    "ktor-server-freemarker", "ktor-server-velocity"
+    "ktor-server-freemarker", "ktor-server-velocity", "ktor-server-thymeleaf"
 ]
 
 ktor-serialization = [

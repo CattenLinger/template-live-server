@@ -31,7 +31,8 @@ listen on port 8080 with FreeMarker template engine
 Arguments:
     --port      Listen port, default is 8080 (Can be set by PORT)
     --engine    Set server engine (Can be set by ENGINE_NAME)
-                    Current supported engine: freemarker, velocity
+                    Current supported engines:
+                    freemarker, velocity, thymeleaf
     --root      Root directory, default is PWD or ./
     --ext-list  Additional extension name redirect to templates.
                     Seperated with ',', e.g. html,htm
