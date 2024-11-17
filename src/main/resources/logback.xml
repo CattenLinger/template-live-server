@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  Don't forget the -Dlogback.configurationFile=./logback.xml VM argument  -->
+<configuration>
+
+    <appender name="STDERR_ALL" class="ch.qos.logback.core.ConsoleAppender" target="System.err">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}] [%-5level] [%thread] [%logger{20}] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDERR_ALL"/>
+    </root>
+</configuration>
