@@ -32,3 +32,10 @@ It contains:
 - path, the request path
 - parameters, all request parameters
 - httpMethod, current http request method name
+
+## Additional
+
+Thymeleaf extension name is '.html', so it will always serve pure html page as thymeleaf template.
+
+Because it is a server for template development, all template caches are disabled for instant refreshing.
+
