@@ -1,10 +1,13 @@
 package com.shinonometn.template.live.server
 
+import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 import io.ktor.util.*
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
@@ -45,7 +48,7 @@ fun main(args: Array<String>) {
 
     logger.info("Serve on directory: '{}'", serverContext.root)
 
-    if(serverContext.extensionNameOverrides.isNotEmpty())
+    if (serverContext.extensionNameOverrides.isNotEmpty())
         logger.info("Override those extensions to template: {}", serverContext.extensionNameOverrides)
 
     val server = embeddedServer(Netty, profile.port) {
@@ -55,7 +58,15 @@ fun main(args: Array<String>) {
             jackson { }
         }
 
-        with(serverContext.engine) { configureServer(profile) }
+        install(StatusPages) {
+            status(HttpStatusCode.NotFound) { call, code ->
+                call.respondText(status = code) { "" }
+            }
+        }
+
+        with(serverContext.engine) {
+            configureServer(profile)
+        }
 
         installServerRouting()
     }
