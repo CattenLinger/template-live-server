@@ -44,6 +44,9 @@ General Options:
 
 Scripting:
     --enable-groovy   Enable groovy script engine.
+                      When groovy is enabled, /WEB-INF will be reserved
+                      as private resource directory. Request to /WEB-INF
+                      will returns 404.
                 
 """.trimIndent()
 

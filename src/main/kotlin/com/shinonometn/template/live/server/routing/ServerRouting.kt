@@ -76,9 +76,15 @@ fun Application.installServerRouting() {
     val server = serverContext
 
     intercept(ApplicationCallPipeline.Call) {
+        val requestPath = call.request.path()
+
+        if(server.isScriptEnabled && requestPath.startsWith("/WEB-INF")) {
+            return@intercept call.respond(HttpStatusCode.NotFound)
+        }
+
         resolveLog.info("Request URI: '{}'.", call.request.uri)
 
-        val ctx = server.newResolveContext(call.request.path())
+        val ctx = server.newResolveContext(requestPath)
 
         val targets = ctx.resolveSearchPaths()
 
