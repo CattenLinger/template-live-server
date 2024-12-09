@@ -9,6 +9,8 @@ class ServerProfile {
     var root : Path = Path.of(System.getenv().getOrDefault("PWD", "./")).toAbsolutePath()
     var extensionNameOverwrite = emptyList<String>()
 
+    var isScriptEnabled = false
+
     companion object {
         fun fromArgs(args: Array<String>) = try {
             parseArgs(args)
@@ -28,17 +30,20 @@ Template Engines Live Server
 Call with no arguments will start a server with current directory and
 listen on port 8080 with FreeMarker template engine
 
-Arguments:
-    --port      Listen port, default is 8080 (Can be set by PORT)
+General Options:
+    --port       Listen port, default is 8080 (Can be set by PORT)
     
-    --engine    Set server engine (Can be set by ENGINE_NAME)
-                Current supported engines:
-                    freemarker, velocity, thymeleaf
+    --engine     Set server engine (Can be set by ENGINE_NAME)
+                 Current supported engines:
+                     freemarker, velocity, thymeleaf
                     
-    --root      Root directory, default is PWD or ./
+    --root       Root directory, default is PWD or ./
     
-    --ext-list  Additional extension name redirect to templates,
-                seperated with ',', e.g. html,htm
+    --ext-list   Additional extension name redirect to templates,
+                 seperated with ',', e.g. html,htm
+
+Scripting:
+    --enable-groovy   Enable groovy script engine.
                 
 """.trimIndent()
 
@@ -54,6 +59,7 @@ private fun parseArgs(args: Array<String>): ServerProfile {
             "--engine" -> profile.engine = args[index++]
             "--root" -> profile.root = Path.of(args[index++]).toAbsolutePath()
             "--ext-list" -> profile.extensionNameOverwrite = args[index++].split(",")
+            "--enable-groovy" -> profile.isScriptEnabled = true
             "--help" -> {
                 // Exit if --help is presented
                 System.err.println(helpMessage)

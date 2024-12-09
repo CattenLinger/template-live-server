@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation(libs.bundles.ktor.server)
     implementation(libs.bundles.ktor.serialization)
+    implementation("org.apache.groovy:groovy:4.0.19")
     implementation("ch.qos.logback:logback-classic:1.5.8")
 
 

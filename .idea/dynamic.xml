@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DynamicElementsStorage">
+    <option name="containingClasses">
+      <map>
+        <entry key="test">
+          <value>
+            <DClassElement>
+              <option name="name" value="test" />
+              <option name="myName" value="test" />
+              <option name="myProperties">
+                <set>
+                  <DPropertyElement>
+                    <option name="name" value="writer" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.io.PrintWriter" />
+                    <option name="myType" value="java.io.PrintWriter" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="writer" />
+                  </DPropertyElement>
+                </set>
+              </option>
+              <option name="myMethods">
+                <set>
+                  <DMethodElement>
+                    <option name="name" value="response" />
+                    <option name="static" value="false" />
+                    <option name="type" value="java.lang.Void" />
+                    <option name="myPairs">
+                      <list>
+                        <ParamInfo>
+                          <option name="name" value="closure" />
+                          <option name="type" value="groovy.lang.Closure" />
+                        </ParamInfo>
+                      </list>
+                    </option>
+                    <option name="myType" value="java.lang.Void" />
+                    <option name="myStatic" value="false" />
+                    <option name="myName" value="response" />
+                  </DMethodElement>
+                </set>
+              </option>
+            </DClassElement>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
