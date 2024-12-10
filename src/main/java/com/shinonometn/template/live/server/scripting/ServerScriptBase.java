@@ -17,9 +17,17 @@ public abstract class ServerScriptBase extends Script {
         return (ResponseConfigurationDelegate) getBinding().getProperty("response");
     }
 
-    public void response(Closure<Void> closure) {
+    protected void response(Closure<Void> closure) {
         closure.setDelegate(getResponse());
         closure.call();
+    }
+
+    protected void contentType(String contentType) {
+        getResponse().contentType(contentType);
+    }
+
+    protected void statusCode(int statusCode) {
+        getResponse().status(statusCode);
     }
 
     protected Object propertyMissing(String name) {
