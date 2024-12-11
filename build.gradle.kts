@@ -15,6 +15,8 @@ dependencies {
     implementation("org.apache.groovy:groovy:4.0.19")
     implementation("ch.qos.logback:logback-classic:1.5.8")
 
+    // https://mvnrepository.com/artifact/org.apache.poi/poi
+    implementation("org.apache.poi:poi:5.3.0")
 
     testImplementation(kotlin("test"))
 }
