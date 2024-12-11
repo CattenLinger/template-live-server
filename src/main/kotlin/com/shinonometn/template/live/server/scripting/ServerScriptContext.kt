@@ -5,6 +5,7 @@ import groovy.util.GroovyScriptEngine
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.future.asDeferred
 import java.io.Closeable
+import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
@@ -28,6 +29,7 @@ class ServerScriptContext(
         val config = engine.config
         config.scriptBaseClass = ServerScriptBase::class.java.name
         config.scriptExtensions = setOf(".groovy")
+        config.sourceEncoding = StandardCharsets.UTF_8.name()
     }
 
     fun getScriptInstance(script: String, binding: Binding) : Deferred<ServerScriptBase> {

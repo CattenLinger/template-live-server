@@ -12,7 +12,9 @@ import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
 import java.io.Closeable
+import java.io.OutputStreamWriter
 import java.io.PrintWriter
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.CompletableFuture
 
 private class ScriptContentExecuteState(
@@ -38,8 +40,8 @@ private class ScriptContentExecuteState(
         val receiver = CompletableFuture<PrintWriter>()
         val outputJob = Job(coroutineScope.coroutineContext[Job])
         coroutineScope.launch {
-            call.respondOutputStream(contentType = contentType, status = statusCode) {
-                receiver.complete(PrintWriter(this))
+            call.respondTextWriter(contentType = contentType, status = statusCode) {
+                receiver.complete(PrintWriter(this, true))
                 outputJob.join()
             }
         }
