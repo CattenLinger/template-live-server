@@ -5,6 +5,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.util.*
 import org.slf4j.LoggerFactory
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
@@ -92,6 +93,7 @@ fun Application.installServerRouting() {
         val callTarget = ctx.resolve(targets)
 
         if (callTarget != null) {
+            call.attributes.put(ResolvedTargetAttributeKey, callTarget)
             // Call the handler to create and returns a response
             callTarget.handleApplicationCall(call, ctx)
         } else {
@@ -100,3 +102,8 @@ fun Application.installServerRouting() {
         }
     }
 }
+
+private val ResolvedTargetAttributeKey = AttributeKey<ResolvedTarget>("ResolvedTarget")
+
+val ApplicationCall.resolvedTarget : ResolvedTarget?
+    get() = attributes.getOrNull(ResolvedTargetAttributeKey)
