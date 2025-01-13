@@ -12,13 +12,6 @@ sealed class ResolvedTarget(val urlPath: String) {
 
     abstract suspend fun handleApplicationCall(call: ApplicationCall, context: ResolveContext)
 
-    protected fun ApplicationCall.toRequestInfoMap() = mapOf(
-        "path" to urlPath,
-        "parameters" to parameters.toMap(),
-        "httpMethod" to request.httpMethod.value,
-        "httpHeaders" to request.headers.toMap(),
-    )
-
     companion object {
         private val virtualRoot = Path.of("/")
     }

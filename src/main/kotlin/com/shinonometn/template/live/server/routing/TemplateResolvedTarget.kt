@@ -10,12 +10,8 @@ class TemplateResolvedTarget(urlPath: String) : ResolvedTarget(urlPath) {
 
         logger.info("Respond Template '{}'", normalizedPath)
 
-        val requestInfo = call.toRequestInfoMap()
+        val content = engine.provideTemplateContent(normalizedPath, context)
 
-        call.respond(
-            engine.provideTemplateContent(
-                normalizedPath, mapOf("request" to requestInfo)
-            )
-        )
+        call.respond(content)
     }
 }

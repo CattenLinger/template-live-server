@@ -8,8 +8,9 @@ class ServerProfile {
     var engine : String = System.getenv().getOrDefault("ENGINE_NAME", "FREEMARKER")
     var root : Path = Path.of(System.getenv().getOrDefault("PWD", "./")).toAbsolutePath()
     var extensionNameOverwrite = emptyList<String>()
-
+    var indexFiles = emptyList<String>()
     var isScriptEnabled = false
+    var noIndex = false
 
     companion object {
         fun fromArgs(args: Array<String>) = try {
@@ -31,17 +32,22 @@ Call with no arguments will start a server with current directory and
 listen on port 8080 with FreeMarker template engine
 
 General Options:
-    --port       Listen port, default is 8080 (Can be set by PORT)
+    --port        Listen port, default is 8080 (Can be set by PORT)
     
-    --engine     Set server engine (Can be set by ENGINE_NAME)
-                 Current supported engines:
-                     freemarker, velocity, thymeleaf
+    --engine      Set server engine (Can be set by ENGINE_NAME)
+                  Current supported engines:
+                      freemarker, velocity, thymeleaf
                     
-    --root       Root directory, default is PWD or ./
+    --root        Root directory, default is PWD or ./
     
-    --ext-list   Additional extension name redirect to templates,
-                 seperated with ',', e.g. html,htm
-
+    --ext-list    Additional extension name redirect to templates,
+                  seperated with ',', e.g. html,htm
+                 
+    --index-file  File name to be uses as a directory index page.
+                  If no template for directory index, this file will be use.
+                  Can have multiple --index-file options
+                  
+    --no-index    Disable directory index page
 Scripting:
     --enable-groovy   Enable groovy script engine.
                       When groovy is enabled, /WEB-INF will be reserved
@@ -63,6 +69,9 @@ private fun parseArgs(args: Array<String>): ServerProfile {
             "--root" -> profile.root = Path.of(args[index++]).toAbsolutePath()
             "--ext-list" -> profile.extensionNameOverwrite = args[index++].split(",")
             "--enable-groovy" -> profile.isScriptEnabled = true
+            "--index-file" -> profile.indexFiles += args[index++].takeUnless { it.contains("/") }
+                ?: throw IllegalArgumentException("Invalid index file name")
+            "--no-index" -> profile.noIndex = true
             "--help" -> {
                 // Exit if --help is presented
                 System.err.println(helpMessage)

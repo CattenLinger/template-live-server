@@ -3,6 +3,7 @@ package com.shinonometn.template.live.server
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.shinonometn.template.live.server.routing.*
 import com.shinonometn.template.live.server.scripting.ServerScriptEngine
+import com.shinonometn.template.live.server.template.ServerTemplateEngine
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
@@ -23,6 +24,8 @@ class TemplateLiveServer(
     val root: Path,
     val engine: ServerTemplateEngine,
     val extensionNameOverrides: List<String>,
+    val indexFiles : List<String>,
+    val noIndexResolve : Boolean,
     enableScripting: Boolean
 ) {
     val scriptEngine: ServerScriptEngine? = if (enableScripting) ServerScriptEngine(root) else null
@@ -75,7 +78,11 @@ fun main(args: Array<String>) {
 
             extensionNameOverrides = profile.extensionNameOverwrite,
 
-            enableScripting = profile.isScriptEnabled
+            enableScripting = profile.isScriptEnabled,
+
+            indexFiles = profile.indexFiles,
+
+            noIndexResolve = profile.noIndex
         )
     } catch (e: Exception) {
         ServerProfile.printHelp()
@@ -85,7 +92,7 @@ fun main(args: Array<String>) {
     logger.info("Serve on directory: '{}'", serverContext.root)
 
     if (serverContext.extensionNameOverrides.isNotEmpty())
-        logger.info("Override those extensions to template: {}", serverContext.extensionNameOverrides)
+        logger.info("Override those extensions for template: {}", serverContext.extensionNameOverrides)
 
     val server = embeddedServer(Netty, profile.port) {
         attributes.put(TemplateLiveServerAttributeKey, serverContext)

@@ -7,16 +7,17 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.util.*
 import org.slf4j.LoggerFactory
+import java.util.Optional
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 
 private val resolveLog = LoggerFactory.getLogger("PathResolver")
 
-private suspend fun ResolveContext.resolveSearchPaths() : MutableList<ResolvedTarget> {
+private suspend fun ResolveContext.resolveSearchPaths(): MutableList<ResolvedTarget> {
     val targets = mutableListOf<ResolvedTarget>()
     val ext = extensionName
 
-    if(!urlPath.endsWith("/")) {
+    if (!urlPath.endsWith("/")) {
         when {
             // If request has no extension name, use template first
             // If the extension name is override by settings, use template
@@ -31,7 +32,7 @@ private suspend fun ResolveContext.resolveSearchPaths() : MutableList<ResolvedTa
         }
 
         // If server script engine enabled and extension name is "groovy"
-        if(server.isScriptEnabled && ext == "groovy") targets.add(ScriptResolvedTarget(urlPath))
+        if (server.isScriptEnabled && ext == "groovy") targets.add(ScriptResolvedTarget(urlPath))
     }
 
     // The file fallback
@@ -40,17 +41,22 @@ private suspend fun ResolveContext.resolveSearchPaths() : MutableList<ResolvedTa
     return targets
 }
 
-private suspend fun ResolveContext.resolveIndexForDirectory(normalizedPath : String) : MutableList<ResolvedTarget> {
+private suspend fun ResolveContext.resolveIndexForDirectory(normalizedPath: String): List<ResolvedTarget> {
     val targets = mutableListOf<ResolvedTarget>()
 
-    targets.addAll(
-        server.extensionNameResolvers.map { it.targetProvider(this, "${normalizedPath}/index") }
-    )
+    targets += server.extensionNameResolvers.map {
+        it.targetProvider(this, "${normalizedPath}/index")
+    }
+
+    val indexFiles = server.indexFiles
+    if (indexFiles.isNotEmpty()) targets += indexFiles.map { name ->
+        FileResolvedTarget("${normalizedPath}/$name")
+    }
 
     return targets
 }
 
-private suspend fun ResolveContext.resolve(targets : List<ResolvedTarget>) : ResolvedTarget? {
+private suspend fun ResolveContext.resolve(targets: List<ResolvedTarget>): ResolvedTarget? {
     resolveLog.info("Resolve {} targets.", targets.size)
 
     for (target in targets) {
@@ -58,16 +64,20 @@ private suspend fun ResolveContext.resolve(targets : List<ResolvedTarget>) : Res
 
         val file = server.root.resolve(path)
 
-        resolveLog.info("Try to resolve [{}]'{}'.", target::class.simpleName ,file)
+        resolveLog.info("Try to resolve [{}]'{}'.", target::class.simpleName, file)
 
+        // Not a file or directory, return empty
         if (!file.exists()) continue
 
-        if (file.isDirectory()) {
-            resolveLog.info("'{}' is a directory, try to resolve recursively.", path)
-            return resolve(resolveIndexForDirectory(path))
-        }
+        // Hit a file, return
+        if (!file.isDirectory()) return target
 
-        return target
+        // If server's index resolve is disabled, just return empty
+        if(server.noIndexResolve) continue
+
+        // Enter index resolve recursively
+        resolveLog.info("'{}' is a directory, try to resolve recursively.", path)
+        return resolve(resolveIndexForDirectory(path))
     }
 
     return null
@@ -79,21 +89,22 @@ fun Application.installServerRouting() {
     intercept(ApplicationCallPipeline.Call) {
         val requestPath = call.request.path()
 
-        if(server.isScriptEnabled && requestPath.startsWith("/WEB-INF")) {
+        if (server.isScriptEnabled && requestPath.startsWith("/WEB-INF")) {
             return@intercept call.respond(HttpStatusCode.NotFound)
         }
 
         resolveLog.info("Request URI: '{}'.", call.request.uri)
 
-        val ctx = server.newResolveContext(requestPath)
+        val ctx = server.newResolveContext(requestPath, call)
 
         val targets = ctx.resolveSearchPaths()
 
         // Resolve on each target
         val callTarget = ctx.resolve(targets)
 
+        call.attributes.put(ResolvedTargetAttributeKey, Optional.ofNullable(callTarget))
+
         if (callTarget != null) {
-            call.attributes.put(ResolvedTargetAttributeKey, callTarget)
             // Call the handler to create and returns a response
             callTarget.handleApplicationCall(call, ctx)
         } else {
@@ -103,7 +114,7 @@ fun Application.installServerRouting() {
     }
 }
 
-private val ResolvedTargetAttributeKey = AttributeKey<ResolvedTarget>("ResolvedTarget")
+private val ResolvedTargetAttributeKey = AttributeKey<Optional<ResolvedTarget>>("ResolvedTarget")
 
-val ApplicationCall.resolvedTarget : ResolvedTarget?
-    get() = attributes.getOrNull(ResolvedTargetAttributeKey)
+val ApplicationCall.resolvedTarget: Optional<ResolvedTarget>
+    get() = attributes[ResolvedTargetAttributeKey]
