@@ -13,8 +13,8 @@ public abstract class ServerScriptBase extends Script {
     protected final PrintStream out = System.err;
     public final Logger log = LOGGER;
 
-    protected ResponseConfigurationDelegate getResponse() {
-        return (ResponseConfigurationDelegate) getBinding().getProperty("response");
+    protected ScriptResponseDelegate getResponse() {
+        return (ScriptResponseDelegate) getBinding().getProperty("__Response__");
     }
 
     protected void response(Closure<Void> closure) {
@@ -31,7 +31,7 @@ public abstract class ServerScriptBase extends Script {
     }
 
     protected Object propertyMissing(String name) {
-        if ("writer".equals(name)) return getResponse().getWriter();
+        if ("writer".equals(name)) return getResponse();
         return null;
     }
 }

@@ -15,6 +15,12 @@ Arguments:
     --root      Root directory (default is PWD)
     --ext-list  Additional extension name redirect to templates.
                     Seperated with ',', e.g. html,htm
+                    
+Scripting:
+    --enable-groovy   Enable groovy script engine.
+                      When groovy is enabled, /WEB-INF will be reserved
+                      as private resource directory. Request to /WEB-INF
+                      will returns 404.
 ```
 
 It starts in current directory and serves freemarker templates by default. 
@@ -25,7 +31,8 @@ If no match, returns 404.
 
 When a request hits a file on disk, only GET method is allowed.
 
-## Template variables
+Template variables
+---
 
 The server will put a `_request` variable in the template context.
 It contains:
@@ -33,9 +40,27 @@ It contains:
 - parameters, all request parameters
 - httpMethod, current http request method name
 
-## Additional
+Additional
+---
 
 Thymeleaf extension name is '.html', so it will always serve pure html page as thymeleaf template.
 
 Because it is a server for template development, all template caches are disabled for instant refreshing.
 
+Groovy Script
+---
+
+Script's print output is mapped to `System.err` (stderr).
+
+Script need to interact with the `response` object to send HTTP response.
+```groovy
+response.statusCode = 200           // Set status code
+response.contentType = "text/plain" // Set content type
+```
+There is a special variable `writer`, it's an alias to `response`.
+`writer` is the output of current HTTP response, it manages the OutputStream
+
+```groovy
+writer << "Hello, world"                // append string to output
+writer << new FileOutputStream("file")  // append binary to output
+```

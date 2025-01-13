@@ -1,7 +1,8 @@
 package com.shinonometn.template.live.server
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.shinonometn.template.live.server.routing.*
-import com.shinonometn.template.live.server.scripting.ServerScriptContext
+import com.shinonometn.template.live.server.scripting.ServerScriptEngine
 import io.ktor.http.*
 import io.ktor.serialization.jackson.*
 import io.ktor.server.application.*
@@ -24,7 +25,7 @@ class TemplateLiveServer(
     val extensionNameOverrides: List<String>,
     enableScripting: Boolean
 ) {
-    val scriptEngine: ServerScriptContext? = if (enableScripting) ServerScriptContext(root) else null
+    val scriptEngine: ServerScriptEngine? = if (enableScripting) ServerScriptEngine(root) else null
 
     val isScriptEnabled: Boolean
         get() = scriptEngine != null
@@ -33,7 +34,7 @@ class TemplateLiveServer(
     //
     // Extension Name resolvers
     //
-    class ExtResolver(val ext: String, val targetProvider : suspend ResolveContext.(String) -> ResolvedTarget)
+    class ExtResolver(val ext: String, val targetProvider: suspend ResolveContext.(String) -> ResolvedTarget)
 
     val extensionNameResolvers: List<ExtResolver>
 
@@ -53,6 +54,11 @@ private val TemplateLiveServerAttributeKey = AttributeKey<TemplateLiveServer>("T
 
 val Application.serverContext: TemplateLiveServer
     get() = attributes[TemplateLiveServerAttributeKey]
+
+private val JsonObjectMapperAttributeKey = AttributeKey<ObjectMapper>("JsonObjectMapper")
+
+val Application.jsonObjectMapper : ObjectMapper
+    get() = attributes[JsonObjectMapperAttributeKey]
 
 private val logger = LoggerFactory.getLogger("Main")
 
@@ -85,7 +91,9 @@ fun main(args: Array<String>) {
         attributes.put(TemplateLiveServerAttributeKey, serverContext)
 
         install(ContentNegotiation) {
-            jackson { }
+            jackson {
+                this@embeddedServer.attributes.put(JsonObjectMapperAttributeKey, this)
+            }
         }
 
         install(StatusPages) {
@@ -100,6 +108,8 @@ fun main(args: Array<String>) {
 
         installServerRouting()
     }
+
+
 
     server.start(wait = true)
 }
