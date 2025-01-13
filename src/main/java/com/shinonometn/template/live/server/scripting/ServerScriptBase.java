@@ -8,10 +8,8 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintStream;
 
 public abstract class ServerScriptBase extends Script {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServerScriptBase.class);
 
     protected final PrintStream out = System.err;
-    public final Logger log = LOGGER;
 
     protected ScriptResponseDelegate getResponse() {
         return (ScriptResponseDelegate) getBinding().getProperty("__Response__");

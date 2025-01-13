@@ -16,6 +16,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.InputStream
 import java.io.OutputStream
@@ -28,7 +29,9 @@ class ScriptExecuteState(
     private val script: ServerScriptBase,
     internal val call : ApplicationCall
 ) : Closeable {
-    private val log = script.log
+    companion object {
+        private val log = LoggerFactory.getLogger(ScriptExecuteState::class.java)
+    }
 
     override fun close() {
         output.close()
@@ -38,6 +41,7 @@ class ScriptExecuteState(
         val env = script.binding
         env.setVariable("__Request__", createScriptRequestDelegate())
         env.setVariable("__Response__", createScriptResponseDelegate())
+        env.setVariable("log", log)
     }
 
 //    private fun getScriptEngine() = call.application.serverContext.scriptEngine!!
@@ -129,8 +133,8 @@ class ScriptExecuteState(
                 field = value
             }
 
-        private val outputJob by lazy { Job(coroutineScope.coroutineContext[Job]) }
         private var didOutputCreated = false
+        private val outputJob by lazy { Job(coroutineScope.coroutineContext[Job]) }
         val outputStream by lazy {
             if(outputJob.isCompleted) throw IllegalStateException("Output job was completed.")
             val receiver = CompletableFuture<OutputStream>()
@@ -140,14 +144,10 @@ class ScriptExecuteState(
                     outputJob.join()
                 }
             }
-            receiver.get()
+            receiver.get().also { didOutputCreated = true }
         }
         private var isPrinterExists = false
-        val printer by lazy {
-            val printer = PrintWriter(outputStream)
-            isPrinterExists = true
-            printer
-        }
+        val printer by lazy { PrintWriter(outputStream).also { isPrinterExists = true } }
 
         private fun writerExists() : Boolean {
             if(didOutputCreated) log.warn("Writer was opened, any change to http response header will takes no effect.")
@@ -157,7 +157,8 @@ class ScriptExecuteState(
         fun close() {
             if(didOutputCreated) {
                 if(isPrinterExists) printer.flush()
-                outputStream.close()
+
+                outputJob.complete()
             }
         }
     }

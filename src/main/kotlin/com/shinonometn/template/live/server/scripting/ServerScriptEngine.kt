@@ -24,7 +24,7 @@ class ServerScriptEngine(
     scriptRoot: Path,
     private val executorService: ExecutorService = ForkJoinPool.commonPool()
 ) : Closeable {
-    private val log = LoggerFactory.getLogger("ServerScriptEngine")
+    val log = LoggerFactory.getLogger("ServerScriptEngine")
 
     val executor: Executor = executorService
 
@@ -34,7 +34,6 @@ class ServerScriptEngine(
     internal val engine: GroovyScriptEngine
 
     init {
-
 
         engine = GroovyScriptEngine(arrayOf(scriptRoot.toUri().toURL()))
 
