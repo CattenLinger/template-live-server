@@ -44,52 +44,12 @@ class ScriptExecuteState(
         env.setVariable("log", log)
     }
 
-//    private fun getScriptEngine() = call.application.serverContext.scriptEngine!!
-
-//    private fun createScriptServiceDelegate() = object : ScriptServiceDelegate {
-//        override fun getScriptName(): String = script.binding.getVariable("__ScriptName__") as String
-//
-//        override fun require(scriptName: String): Script {
-//            if(scriptName.isBlank()) throw IllegalArgumentException("ScriptName should not be blank.")
-//            val scriptLeading = scriptName.first()
-//            val scriptLocation = scriptName.drop(1)
-//            if(scriptLocation.isBlank()) throw IllegalArgumentException("ScriptName should not be blank.")
-//
-//            // +/scriptName
-//            // /scriptName
-//            // -/scriptName
-//            // scriptName
-//
-//            // Script path is related to the server's script root.
-//            // Server's script root is GroovyScriptEngine's path
-//            val scriptPath = when(scriptLeading) {
-//                '+', '/' -> { // Related to public root
-//                    val relativePath = scriptName.drop(1)
-//                    virtualRoot.resolve(relativePath).normalize()
-//                }
-//                '-' -> { // Related to private root
-//                    val relativePath = scriptName.drop(1)
-//                    val virtualPath = virtualRoot.resolve(relativePath).normalize().toString().drop(1)
-//                    privateRoot.resolve(virtualPath)
-//                }
-//                else -> { // Related to current file's root
-//                    val scriptParent = Path.of(getScriptName()).parent
-//                    val relativePath = scriptName.drop(1)
-//                    scriptParent.resolve(relativePath).normalize()
-//                }
-//            }.toString().drop(1)
-//
-//            log.debug("Script {} require script {}.", getScriptName(), scriptName)
-//            return getScriptEngine().engine.createScript(scriptPath, Binding())
-//        }
-//    }
-
     /** Method to create a request access delegate for the script */
     private fun createScriptRequestDelegate() = object : ScriptRequestDelegate {
         override fun getMethod(): String = call.request.httpMethod.value
         override fun getPath(): String = call.request.path()
 
-        private val _url by lazy { call.request.uri.substringBefore("?") }
+        private val _url by lazy { call.request.path() }
         override fun getUrl(): String = _url
 
         override fun getUri(): String = call.request.uri
