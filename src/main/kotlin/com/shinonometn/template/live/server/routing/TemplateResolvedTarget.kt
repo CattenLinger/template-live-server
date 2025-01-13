@@ -14,7 +14,7 @@ class TemplateResolvedTarget(urlPath: String) : ResolvedTarget(urlPath) {
 
         call.respond(
             engine.provideTemplateContent(
-                normalizedPath, mapOf("_request" to requestInfo)
+                normalizedPath, mapOf("request" to requestInfo)
             )
         )
     }

@@ -34,7 +34,7 @@ When a request hits a file on disk, only GET method is allowed.
 Template variables
 ---
 
-The server will put a `_request` variable in the template context.
+The server will put a `request` variable in the template context.
 It contains:
 - path, the request path
 - parameters, all request parameters
