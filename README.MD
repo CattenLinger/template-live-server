@@ -64,3 +64,29 @@ There is a special variable `writer`, it's an alias to `response`.
 writer << "Hello, world"                // append string to output
 writer << new FileOutputStream("file")  // append binary to output
 ```
+
+Launch script example
+---
+
+```shell
+#!/usr/bin/env bash
+
+SERVER_HOME=$(dirname $(realpath $0))
+
+JAR="server.jar"
+
+JAVA_HOME="$(dirname $(realpath $(which java)))/.."
+JAVA_HOME="$(realpath $JAVA_HOME)"
+
+JAVA_OPTS="-Xmx128m"
+
+(
+printf "Java Home   : $JAVA_HOME\n"
+printf "Java Opts   : $JAVA_OPTS\n"
+printf "Jar File    : $JAR\n"
+printf "Server Home : $SERVER_HOME\n"
+printf "\n"
+) 1>&2
+
+"$JAVA_HOME"/bin/java $JAVA_OPTS -jar "$SERVER_HOME"/"$JAR" "$@"
+```
