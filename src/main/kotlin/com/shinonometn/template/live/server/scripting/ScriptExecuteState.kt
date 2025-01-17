@@ -2,32 +2,24 @@ package com.shinonometn.template.live.server.scripting
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.shinonometn.template.live.server.jsonObjectMapper
-import com.shinonometn.template.live.server.scripting.ServerScriptEngine.Companion.privateRoot
-import com.shinonometn.template.live.server.scripting.ServerScriptEngine.Companion.virtualRoot
-import com.shinonometn.template.live.server.serverContext
-import groovy.lang.Binding
-import groovy.lang.Script
+import com.shinonometn.template.live.server.handler.EndpointRequestDelegateImpl
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.util.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.PrintWriter
-import java.nio.file.Path
 import java.util.concurrent.CompletableFuture
 
 class ScriptExecuteState(
-    internal val coroutineScope: CoroutineScope,
-    private val script: ServerScriptBase,
-    internal val call : ApplicationCall
+    val coroutineScope: CoroutineScope,
+    val script: ServerScriptBase,
+    val call : ApplicationCall
 ) : Closeable {
     companion object {
         private val log = LoggerFactory.getLogger(ScriptExecuteState::class.java)
@@ -39,45 +31,11 @@ class ScriptExecuteState(
 
     fun initialize() {
         val env = script.binding
-        env.setVariable("__Request__", createScriptRequestDelegate())
+        env.setVariable("__Request__", EndpointRequestDelegateImpl(call))
         env.setVariable("__Response__", createScriptResponseDelegate())
         env.setVariable("log", log)
     }
 
-    /** Method to create a request access delegate for the script */
-    private fun createScriptRequestDelegate() = object : ScriptRequestDelegate {
-        override fun getMethod(): String = call.request.httpMethod.value
-        override fun getPath(): String = call.request.path()
-
-        private val _url by lazy { call.request.path() }
-        override fun getUrl(): String = _url
-
-        override fun getUri(): String = call.request.uri
-
-        override fun parameter(name: String): String? = call.request.queryParameters[name]
-
-        override fun getQueryString(): String = call.request.queryString()
-
-        override fun header(name: String): String? = call.request.header(name)
-
-        override fun cookie(name: String): String? = call.request.cookies[name]
-
-        private val _parameterMap by lazy {
-            call.parameters.toMap().mapValues { it.value.toMutableList() }.toMutableMap()
-        }
-        override fun getParameters(): MutableMap<String, MutableList<String>> = _parameterMap
-
-        private val _headerMap by lazy {
-            call.request.headers.toMap().mapValues { it.value.toMutableList() }.toMutableMap()
-        }
-        override fun getHeaders(): MutableMap<String, MutableList<String>> = _headerMap
-
-        private val _cookieMap by lazy { call.request.cookies.rawCookies.toMutableMap() }
-        override fun getCookies(): MutableMap<String, String> = _cookieMap
-
-        private val _contentType by lazy { call.request.contentType().contentType }
-        override fun getContentType(): String = _contentType
-    }
 
     /** An object remembers script's response output state */
     inner class OutputState internal constructor() {

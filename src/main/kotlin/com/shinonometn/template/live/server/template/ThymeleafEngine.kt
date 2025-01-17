@@ -1,6 +1,7 @@
 package com.shinonometn.template.live.server.template
 
 import com.shinonometn.template.live.server.ServerProfile
+import com.shinonometn.template.live.server.handler.EndpointRequestDelegateImpl
 import com.shinonometn.template.live.server.routing.ResolveContext
 import io.ktor.server.application.*
 import io.ktor.server.thymeleaf.*
@@ -27,6 +28,6 @@ data object ThymeleafEngine : ServerTemplateEngine {
     }
 
     override fun provideTemplateContent(template: String, context: ResolveContext): Any {
-        return ThymeleafContent(template, mapOf("request" to context.call.toRequestInfoMap()))
+        return ThymeleafContent(template, mapOf("request" to EndpointRequestDelegateImpl(context.call)))
     }
 }

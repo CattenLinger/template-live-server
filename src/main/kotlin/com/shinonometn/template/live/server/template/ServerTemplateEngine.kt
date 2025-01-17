@@ -25,10 +25,3 @@ sealed interface ServerTemplateEngine {
     val name : String
 
 }
-
-fun ApplicationCall.toRequestInfoMap() = mapOf(
-    "path" to request.path(),
-    "parameters" to parameters.toMap(),
-    "httpMethod" to request.httpMethod.value,
-    "httpHeaders" to request.headers.toMap(),
-)

@@ -33,7 +33,6 @@ class TemplateLiveServer(
     val isScriptEnabled: Boolean
         get() = scriptEngine != null
 
-
     //
     // Extension Name resolvers
     //

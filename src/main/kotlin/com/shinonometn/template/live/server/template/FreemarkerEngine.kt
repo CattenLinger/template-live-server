@@ -1,6 +1,7 @@
 package com.shinonometn.template.live.server.template
 
 import com.shinonometn.template.live.server.ServerProfile
+import com.shinonometn.template.live.server.handler.EndpointRequestDelegateImpl
 import com.shinonometn.template.live.server.routing.ResolveContext
 import freemarker.cache.FileTemplateLoader
 import freemarker.cache.NullCacheStorage
@@ -21,6 +22,6 @@ data object FreemarkerEngine : ServerTemplateEngine {
     }
 
     override fun provideTemplateContent(template: String, context : ResolveContext): FreeMarkerContent {
-        return FreeMarkerContent(template, mapOf("request" to context.call.toRequestInfoMap()))
+        return FreeMarkerContent(template, mapOf("request" to EndpointRequestDelegateImpl(context.call)))
     }
 }

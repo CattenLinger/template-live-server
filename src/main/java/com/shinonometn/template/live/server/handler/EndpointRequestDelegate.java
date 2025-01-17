@@ -1,4 +1,4 @@
-package com.shinonometn.template.live.server.scripting;
+package com.shinonometn.template.live.server.handler;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public interface ScriptRequestDelegate {
+public interface EndpointRequestDelegate {
     String getMethod();
     String getPath();
     String getUrl();

@@ -11,6 +11,4 @@ public interface ScriptServiceDelegate {
      * If the script is in public directory, the name starts with '+'.
      */
     String getScriptName();
-
-    Script require(String scriptName);
 }
