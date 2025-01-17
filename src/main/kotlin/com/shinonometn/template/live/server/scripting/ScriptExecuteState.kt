@@ -31,8 +31,8 @@ class ScriptExecuteState(
 
     fun initialize() {
         val env = script.binding
-        env.setVariable("__Request__", EndpointRequestDelegateImpl(call))
-        env.setVariable("__Response__", createScriptResponseDelegate())
+        env.setVariable("request", EndpointRequestDelegateImpl(call))
+        env.setVariable("response", createScriptResponseDelegate())
         env.setVariable("log", log)
     }
 

@@ -13,7 +13,7 @@ public abstract class ServerScriptBase extends Script implements EndpointScript 
 
     @Override
     public ScriptResponseDelegate getResponse() {
-        return (ScriptResponseDelegate) getBinding().getProperty("__Response__");
+        return (ScriptResponseDelegate) getBinding().getProperty("response");
     }
 
     protected Object propertyMissing(String name) {
