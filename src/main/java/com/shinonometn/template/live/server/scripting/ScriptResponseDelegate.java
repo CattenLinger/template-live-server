@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 public interface ScriptResponseDelegate {
     void contentType(String str);
 
-    void status(Integer statusCode);
+    void statusCode(Integer statusCode);
 
     void leftShift(@NotNull String s);
 

@@ -13,12 +13,15 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
 import io.ktor.util.*
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.util.*
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
 import kotlin.system.exitProcess
+
+private val logger = LoggerFactory.getLogger("Main")
 
 class TemplateLiveServer(
     val root: Path,
@@ -28,6 +31,8 @@ class TemplateLiveServer(
     val noIndexResolve : Boolean,
     enableScripting: Boolean
 ) {
+    val log : Logger = logger
+
     val scriptEngine: ServerScriptEngine? = if (enableScripting) ServerScriptEngine(root) else null
 
     val isScriptEnabled: Boolean
@@ -62,7 +67,6 @@ private val JsonObjectMapperAttributeKey = AttributeKey<ObjectMapper>("JsonObjec
 val Application.jsonObjectMapper : ObjectMapper
     get() = attributes[JsonObjectMapperAttributeKey]
 
-private val logger = LoggerFactory.getLogger("Main")
 
 fun main(args: Array<String>) {
     val profile = ServerProfile.fromArgs(args)

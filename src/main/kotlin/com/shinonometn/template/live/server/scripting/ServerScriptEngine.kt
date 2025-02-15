@@ -24,6 +24,7 @@ class ServerScriptEngine(
     scriptRoot: Path,
     private val executorService: ExecutorService = ForkJoinPool.commonPool()
 ) : Closeable {
+
     val log = LoggerFactory.getLogger("ServerScriptEngine")
 
     val executor: Executor = executorService

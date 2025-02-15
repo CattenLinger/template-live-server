@@ -2,13 +2,12 @@ package com.shinonometn.template.live.server.template
 
 import com.shinonometn.template.live.server.ServerProfile
 import com.shinonometn.template.live.server.handler.EndpointRequestDelegateImpl
+import com.shinonometn.template.live.server.handler.RequestInputDelegate
+import com.shinonometn.template.live.server.handler.RequestInputDelegate.Companion.TemplateInputPayloadDecider
 import com.shinonometn.template.live.server.routing.ResolveContext
-import com.shinonometn.template.live.server.scripting.ScriptExecuteState
-import com.shinonometn.template.live.server.scripting.ServerScriptBase
 import io.ktor.server.application.*
 import io.ktor.server.velocity.*
 import io.ktor.util.*
-import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.RuntimeConstants
 
@@ -34,7 +33,8 @@ data object VelocityEngine : ServerTemplateEngine {
     }
 
     override fun provideTemplateContent(template: String, context: ResolveContext): Any {
-        return VelocityContent(template, mapOf("request" to EndpointRequestDelegateImpl(context.call)))
+        val body = RequestInputDelegate(context.call, TemplateInputPayloadDecider)
+        return VelocityContent(template, mapOf("request" to EndpointRequestDelegateImpl(context.call) { body.payload }))
     }
 
     private val VelocityEngineAttributeKey = AttributeKey<VelocityEngine>("VelocityEngine")

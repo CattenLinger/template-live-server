@@ -24,4 +24,6 @@ public interface EndpointRequestDelegate {
     String header(@NotNull String name);
     @Nullable
     String cookie(@NotNull String name);
+
+    Object getBody();
 }

@@ -4,9 +4,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.util.*
 
-internal class EndpointRequestDelegateImpl(private val call : ApplicationCall) : EndpointRequestDelegate {
+internal class EndpointRequestDelegateImpl(
+    private val call: ApplicationCall, private val bodyProvider: () -> Any?
+) : EndpointRequestDelegate {
 
-    override fun getMethod() : String = call.request.httpMethod.value
+    override fun getMethod(): String = call.request.httpMethod.value
 
     override fun getPath(): String = call.request.path()
 
@@ -21,11 +23,13 @@ internal class EndpointRequestDelegateImpl(private val call : ApplicationCall) :
     private val parameterMap by lazy {
         call.parameters.toMap().mapValues { it.value.toMutableList() }.toMutableMap()
     }
+
     override fun getParameters(): MutableMap<String, MutableList<String>> = parameterMap
 
     private val headerMap by lazy {
         call.request.headers.toMap().mapValues { it.value.toMutableList() }.toMutableMap()
     }
+
     override fun getHeaders(): MutableMap<String, MutableList<String>> = headerMap
 
     private val cookieMap by lazy { call.request.cookies.rawCookies.toMutableMap() }
@@ -37,4 +41,5 @@ internal class EndpointRequestDelegateImpl(private val call : ApplicationCall) :
 
     override fun cookie(name: String): String? = call.request.cookies[name]
 
+    override fun getBody(): Any? = bodyProvider()
 }

@@ -20,6 +20,6 @@ public interface EndpointScript {
     }
 
     default void statusCode(int statusCode) {
-        getResponse().status(statusCode);
+        getResponse().statusCode(statusCode);
     }
 }

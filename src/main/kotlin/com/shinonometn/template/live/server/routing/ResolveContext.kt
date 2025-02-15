@@ -1,22 +1,26 @@
 package com.shinonometn.template.live.server.routing
 
 import com.shinonometn.template.live.server.TemplateLiveServer
+import com.shinonometn.template.live.server.serverContext
 import io.ktor.server.application.*
 import io.ktor.server.request.*
+import kotlinx.coroutines.CoroutineScope
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 private val logger = LoggerFactory.getLogger("ResolveContext")
 
-fun TemplateLiveServer.newResolveContext(urlPath: String, call: ApplicationCall) =
-    ResolveContext(urlPath, call, logger, server = this)
+fun TemplateLiveServer.newResolveContext(call: ApplicationCall, urlPath: String) =
+    ResolveContext(call, urlPath, logger)
 
 class ResolveContext internal constructor(
-    val urlPath: String,
     val call: ApplicationCall,
-    val logger: Logger,
-    val server: TemplateLiveServer
+    val urlPath: String,
+    val logger: Logger
 ) {
+    val server = call.application.serverContext
+
+    val coroutineScope : CoroutineScope = call
 
     /**
      * Url Extension Name.
