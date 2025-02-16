@@ -1,16 +1,19 @@
 package com.shinonometn.template.live.server.scripting
 
 import com.shinonometn.template.live.server.TemplateLiveServer
+import groovy.grape.GrabAnnotationTransformation
+import groovy.grape.Grape
+import groovy.grape.GrapeIvy
 import groovy.lang.Binding
-import groovy.lang.GroovyClassLoader
 import groovy.lang.GroovyObjectSupport
 import groovy.lang.GroovyShell
-import groovy.lang.Script
 import groovy.transform.ThreadInterrupt
 import groovy.util.GroovyScriptEngine
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.future.asDeferred
+import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
+import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.nio.charset.StandardCharsets
@@ -20,8 +23,6 @@ import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.ForkJoinPool
 import kotlin.io.path.exists
-import kotlin.io.path.isDirectory
-import kotlin.io.path.isRegularFile
 
 class ServerScriptEngine(
     scriptRoot: Path,
@@ -37,12 +38,13 @@ class ServerScriptEngine(
 
     internal val engine: GroovyScriptEngine
 
-    internal val shell : GroovyShell
-    private val binding : Binding
+    internal val shell: GroovyShell
+    private val binding: Binding
 
     init {
+        val classloader = Thread.currentThread().contextClassLoader
 
-        engine = GroovyScriptEngine(arrayOf(scriptRoot.toUri().toURL()))
+        engine = GroovyScriptEngine(arrayOf(scriptRoot.toUri().toURL()), classloader)
 
         val config = engine.config
         config.scriptBaseClass = ServerScriptBase::class.java.name
@@ -51,27 +53,33 @@ class ServerScriptEngine(
         // https://www.groovy-lang.org/metaprogramming.html#_safer_scripting
         config.addCompilationCustomizers(ASTTransformationCustomizer(ThreadInterrupt::class.java))
 
+
         binding = Binding()
-        shell = GroovyShell(binding)
+        binding.setVariable("log", log)
+        val shellConfig = CompilerConfiguration()
+        System.setProperty("groovy.root", scriptPrivateRoot.resolve(".groovy").toAbsolutePath().toString())
+        shell = GroovyShell(classloader, binding, shellConfig)
     }
 
-    internal fun initServerContext(server : TemplateLiveServer) {
+    internal fun initServerContext(server: TemplateLiveServer) {
         binding.setVariable("instance", server)
         val configScriptPath = scriptPrivateRoot.resolve("server.config.groovy")
-        if(configScriptPath.exists()) {
-            shell.evaluate(configScriptPath.toAbsolutePath().toFile())
+        if (configScriptPath.exists()) {
+            shell.evaluate(configScriptPath.toAbsolutePath().toUri())
             log.info("Initialized server script from '$configScriptPath'.")
         }
+
     }
 
     inner class ScriptDelegate internal constructor() : GroovyObjectSupport() {
-        fun propertyMissing(key: String) : Any? {
+        fun propertyMissing(key: String): Any? {
             return binding.getProperty(key)
         }
     }
+
     val scriptDelegate = ScriptDelegate()
 
-    fun getScriptInstanceDeferred(name: String, binding: Binding) : Deferred<ServerScriptBase> {
+    fun getScriptInstanceDeferred(name: String, binding: Binding): Deferred<ServerScriptBase> {
         return CompletableFuture.supplyAsync({
             engine.createScript(name, binding) as ServerScriptBase
         }, executor).asDeferred()
