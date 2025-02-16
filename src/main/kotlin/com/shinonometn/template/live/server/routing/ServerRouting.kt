@@ -7,6 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.util.*
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.supervisorScope
 import org.slf4j.LoggerFactory
 import java.util.Optional
 import kotlin.io.path.exists
@@ -105,9 +106,9 @@ fun Application.installServerRouting() {
 
         call.attributes.put(ResolvedTargetAttributeKey, Optional.ofNullable(callTarget))
 
-        if (callTarget != null) {
+        if (callTarget != null) supervisorScope {
             // Call the handler to create and returns a response
-            callTarget.handleApplicationCall(call, ctx)
+            with(callTarget) { handleApplicationCall(call, ctx) }
         } else {
             resolveLog.info("Path '{}' not found.", ctx.urlPath)
             call.respondText(status = HttpStatusCode.NotFound) { "Page Not found" }

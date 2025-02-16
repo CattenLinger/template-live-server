@@ -9,6 +9,7 @@ import freemarker.cache.FileTemplateLoader
 import freemarker.cache.NullCacheStorage
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
+import kotlinx.coroutines.CoroutineScope
 
 data object FreemarkerEngine : ServerTemplateEngine {
     override val name: String = "freemarker"
@@ -23,8 +24,8 @@ data object FreemarkerEngine : ServerTemplateEngine {
         }
     }
 
-    override fun provideTemplateContent(template: String, context : ResolveContext): FreeMarkerContent {
-        val body = RequestInputDelegate(context.call, TemplateInputPayloadDecider)
+    override fun provideTemplateContent(coroutineScope: CoroutineScope, template: String, context : ResolveContext): FreeMarkerContent {
+        val body = RequestInputDelegate(coroutineScope, context.call, TemplateInputPayloadDecider)
         return FreeMarkerContent(
             template,
             mapOf("request" to EndpointRequestDelegateImpl(context.call) { body.payload })

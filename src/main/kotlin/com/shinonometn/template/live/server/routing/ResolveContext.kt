@@ -20,8 +20,6 @@ class ResolveContext internal constructor(
 ) {
     val server = call.application.serverContext
 
-    val coroutineScope : CoroutineScope = call
-
     /**
      * Url Extension Name.
      *

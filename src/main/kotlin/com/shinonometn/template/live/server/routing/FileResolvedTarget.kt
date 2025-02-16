@@ -4,9 +4,10 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import kotlinx.coroutines.CoroutineScope
 
 class FileResolvedTarget(urlPath: String) : ResolvedTarget(urlPath) {
-    override suspend fun handleApplicationCall(call: ApplicationCall, context: ResolveContext) {
+    override suspend fun CoroutineScope.handleApplicationCall(call: ApplicationCall, context: ResolveContext) {
         val logger = context.logger
 
         // Returns NOT_ALLOWED when the file request method is not get

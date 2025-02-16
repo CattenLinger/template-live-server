@@ -3,6 +3,7 @@ package com.shinonometn.template.live.server.scripting.internal
 import com.shinonometn.template.live.server.handler.EndpointRequestDelegateImpl
 import com.shinonometn.template.live.server.handler.RequestInputDelegate
 import com.shinonometn.template.live.server.scripting.ServerScriptBase
+import com.shinonometn.template.live.server.serverContext
 import io.ktor.server.application.*
 import kotlinx.coroutines.CoroutineScope
 import org.slf4j.LoggerFactory
@@ -27,11 +28,12 @@ class ScriptExecuteState(
 
         env.setVariable("request", EndpointRequestDelegateImpl(call) { input.payload })
         env.setVariable("response", ScriptResponseOutputDelegateImpl(log, output, call))
+        env.setVariable("server", call.application.serverContext.scriptEngine?.scriptDelegate)
         env.setVariable("log", log)
     }
 
-    val input = RequestInputDelegate(call)
+    val input = RequestInputDelegate(coroutineScope, call)
 
-    val output = RequestOutputState(call, log)
+    val output = RequestOutputState(coroutineScope, call, log)
 
 }

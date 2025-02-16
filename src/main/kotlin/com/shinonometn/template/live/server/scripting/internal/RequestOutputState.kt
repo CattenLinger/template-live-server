@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture
 
 /** An object remembers script's response output state */
 class RequestOutputState internal constructor(
+    private val coroutineScope: CoroutineScope,
     private val call : ApplicationCall, private val log : Logger
 ) {
-    val coroutineScope : CoroutineScope = call
 
     var contentType : ContentType? = null
         set(value) {

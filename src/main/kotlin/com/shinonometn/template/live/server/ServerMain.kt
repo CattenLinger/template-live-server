@@ -55,6 +55,10 @@ class TemplateLiveServer(
         )
         extensionNameResolvers = resolvers
     }
+
+    internal fun postInit() {
+        scriptEngine?.initServerContext(this)
+    }
 }
 
 private val TemplateLiveServerAttributeKey = AttributeKey<TemplateLiveServer>("TemplateLiveServer")
@@ -91,6 +95,7 @@ fun main(args: Array<String>) {
         ServerProfile.printHelp()
         exitProcess(1)
     }
+    serverContext.postInit()
 
     logger.info("Serve on directory: '{}'", serverContext.root)
 
@@ -118,8 +123,6 @@ fun main(args: Array<String>) {
 
         installServerRouting()
     }
-
-
 
     server.start(wait = true)
 }

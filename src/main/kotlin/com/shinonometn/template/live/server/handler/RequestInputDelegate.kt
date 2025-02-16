@@ -7,10 +7,10 @@ import kotlinx.coroutines.CoroutineScope
 import java.io.Closeable
 
 class RequestInputDelegate internal constructor(
+    val coroutineScope: CoroutineScope,
     val call: ApplicationCall,
     private val decidePayloadFactory: (ctx: RequestInputDelegate) -> PayloadFactory<out Payload> = ScriptInputPayloadDecider
 ) : Closeable {
-    val coroutineScope: CoroutineScope = call
 
     private var hasPayload: Boolean = false
 

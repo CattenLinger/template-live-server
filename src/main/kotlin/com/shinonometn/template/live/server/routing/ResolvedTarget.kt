@@ -3,6 +3,7 @@ package com.shinonometn.template.live.server.routing
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineScope
 import java.nio.file.Path
 
 sealed class ResolvedTarget(val urlPath: String) {
@@ -10,7 +11,7 @@ sealed class ResolvedTarget(val urlPath: String) {
     /** Target resource path, resolved to relative file path to the system */
     val normalizedPath: String by lazy { virtualRoot.resolve(urlPath).normalize().toString().drop(1) }
 
-    abstract suspend fun handleApplicationCall(call: ApplicationCall, context: ResolveContext)
+    abstract suspend fun CoroutineScope.handleApplicationCall(call: ApplicationCall, context: ResolveContext)
 
     companion object {
         private val virtualRoot = Path.of("/")

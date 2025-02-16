@@ -8,6 +8,7 @@ import com.shinonometn.template.live.server.routing.ResolveContext
 import io.ktor.server.application.*
 import io.ktor.server.velocity.*
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineScope
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.runtime.RuntimeConstants
 
@@ -32,8 +33,8 @@ data object VelocityEngine : ServerTemplateEngine {
         }
     }
 
-    override fun provideTemplateContent(template: String, context: ResolveContext): Any {
-        val body = RequestInputDelegate(context.call, TemplateInputPayloadDecider)
+    override fun provideTemplateContent(coroutineScope: CoroutineScope, template: String, context: ResolveContext): Any {
+        val body = RequestInputDelegate(coroutineScope, context.call, TemplateInputPayloadDecider)
         return VelocityContent(template, mapOf("request" to EndpointRequestDelegateImpl(context.call) { body.payload }))
     }
 

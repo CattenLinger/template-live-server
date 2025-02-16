@@ -5,6 +5,7 @@ import com.shinonometn.template.live.server.routing.ResolveContext
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineScope
 import org.slf4j.LoggerFactory
 
 sealed interface ServerTemplateEngine {
@@ -16,7 +17,7 @@ sealed interface ServerTemplateEngine {
 
     fun Application.configureServer(serverProfile: ServerProfile)
 
-    fun provideTemplateContent(template : String, context : ResolveContext) : Any
+    fun provideTemplateContent(coroutineScope: CoroutineScope, template : String, context : ResolveContext) : Any
 
     /** Template file extension names of this engine */
     val extensionNames : List<String>

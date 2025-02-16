@@ -7,6 +7,7 @@ import com.shinonometn.template.live.server.handler.RequestInputDelegate.Compani
 import com.shinonometn.template.live.server.routing.ResolveContext
 import io.ktor.server.application.*
 import io.ktor.server.thymeleaf.*
+import kotlinx.coroutines.CoroutineScope
 import org.thymeleaf.templateresolver.FileTemplateResolver
 
 data object ThymeleafEngine : ServerTemplateEngine {
@@ -29,8 +30,8 @@ data object ThymeleafEngine : ServerTemplateEngine {
         }
     }
 
-    override fun provideTemplateContent(template: String, context: ResolveContext): Any {
-        val body = RequestInputDelegate(context.call, TemplateInputPayloadDecider)
+    override fun provideTemplateContent(coroutineScope: CoroutineScope, template: String, context: ResolveContext): Any {
+        val body = RequestInputDelegate(coroutineScope, context.call, TemplateInputPayloadDecider)
         return ThymeleafContent(template, mapOf("request" to EndpointRequestDelegateImpl(context.call) { body.payload }))
     }
 }
